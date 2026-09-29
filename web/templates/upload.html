@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#14243b">
+    <title>Dataset Intake | Customer Support AI QA</title>
+    <script src="/static/theme.js"></script>
+    <link rel="stylesheet" href="/static/app.css">
+    <script src="/static/app.js" defer></script>
+</head>
+<body>
+<div class="app-shell">
+    <aside class="sidebar" aria-label="Main navigation">
+        <a class="brand" href="/"><span class="brand-mark" aria-hidden="true">A/Q</span><span><span class="brand-name">Annotation Ops</span><span class="brand-caption">Data quality workspace</span></span></a>
+        <div class="nav-label">Workspace</div>
+        <nav><ul class="nav-list">
+            <li><a class="nav-link" href="/"><span class="nav-icon" aria-hidden="true">01</span>Overview</a></li>
+            <li><a class="nav-link" href="/review"><span class="nav-icon" aria-hidden="true">02</span>Human Review</a></li>
+            <li><a class="nav-link" href="/upload" aria-current="page"><span class="nav-icon" aria-hidden="true">03</span>Upload Data</a></li>
+        </ul></nav>
+        <div class="sidebar-spacer"></div>
+        <div class="workspace-status"><strong><span class="status-dot" aria-hidden="true"></span>Pipeline ready</strong><span>Annotation and QA workspace</span></div>
+        <div class="sidebar-footer">Customer Support AI · QA Platform</div>
+    </aside>
+
+    <div class="main-area">
+        <header class="topbar">
+            <div class="breadcrumb">Workspace <span aria-hidden="true">/</span> <strong>Dataset intake</strong></div>
+            <div class="topbar-meta"><span class="topbar-led" aria-hidden="true"></span>Local processing workflow</div>
+            <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false"><span class="theme-toggle-icon" data-theme-icon aria-hidden="true">☾</span><span class="theme-toggle-label" data-theme-label>Dark mode</span></button>
+        </header>
+
+        <main class="page-content">
+            <section class="page-heading">
+                <div><p class="eyebrow">Data operations / 02</p><h1>Upload a dataset</h1><p class="page-description">Run the existing annotation pipeline against a customer-support file.</p></div>
+                <a class="button-secondary" href="/">Back to overview</a>
+            </section>
+
+            {% if error %}
+            <div class="form-alert form-alert--error" role="alert"><strong>Upload error</strong>{{ error }}</div>
+            {% endif %}
+            {% if success %}
+            <div class="form-alert form-alert--success" role="status">{{ success }}</div>
+            {% endif %}
+
+            <section class="upload-layout" aria-label="Dataset upload">
+                <article class="panel upload-panel">
+                    <div class="panel-heading"><div><h2>Dataset file</h2><p class="panel-subtitle">Choose a CSV or Excel file to annotate</p></div><span class="quiet-label">CSV · XLSX · XLS</span></div>
+                    <form action="/upload" method="POST" enctype="multipart/form-data">
+                        <div class="drop-zone" data-drop-zone>
+                            <span class="upload-glyph" aria-hidden="true">↑</span>
+                            <strong>Select or drop a dataset file</strong>
+                            <p>Accepted formats: CSV, XLSX, XLS</p>
+                            <input class="file-input" id="file" type="file" name="file" accept=".csv,.xlsx,.xls" required data-file-input aria-describedby="file-help file-status">
+                            <span class="form-note" id="file-status" aria-live="polite">No file selected</span>
+                        </div>
+                        <div class="form-actions">
+                            <span class="form-note" id="file-help">The complaint or message column is detected automatically.</span>
+                            <button class="button" type="submit">Upload &amp; annotate <span aria-hidden="true">→</span></button>
+                        </div>
+                    </form>
+                    <p class="privacy-note">The uploaded file is processed by the existing application workflow. Avoid uploading data you are not authorized to process.</p>
+                </article>
+
+                <aside class="panel side-note">
+                    <h2>Input requirements</h2>
+                    <p>One record per row. A text column is required for annotation.</p>
+                    <ul><li>CSV or Excel workbook</li><li>Complaint, message, text, or query field</li><li>Empty text is marked uncertain</li></ul>
+                </aside>
+            </section>
+
+            {% if total is not none %}
+            <section class="panel" style="margin-top: 16px" aria-labelledby="summary-title">
+                <div class="panel-heading"><div><h2 id="summary-title">Processing summary</h2><p class="panel-subtitle">Results from this upload</p></div><span class="badge badge--success">COMPLETE</span></div>
+                <div class="summary-grid">
+                    <div class="summary-stat"><strong>{{ total }}</strong><span>Total records</span></div>
+                    <div class="summary-stat"><strong>{{ annotated }}</strong><span>Annotated</span></div>
+                    <div class="summary-stat"><strong>{{ uncertain }}</strong><span>Uncertain</span></div>
+                    <div class="summary-stat"><strong>{{ human_review }}</strong><span>Human review</span></div>
+                </div>
+                <div class="metadata-line"><strong>Detected text column:</strong><span class="mono">{{ text_column }}</span>
+                    {% if output_file %}<a class="button download-link" href="/download/{{ output_file }}">Download annotated CSV <span aria-hidden="true">↓</span></a>{% endif %}
+                </div>
+            </section>
+            {% endif %}
+
+            {% if preview %}
+            <section class="panel table-panel" style="margin-top: 16px" aria-labelledby="preview-title">
+                <div class="panel-heading"><div><h2 id="preview-title">Annotation preview</h2><p class="panel-subtitle">First {{ preview | length }} records returned by the existing workflow</p></div><span class="quiet-label">CUSTOMER TEXT COLLAPSED</span></div>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th scope="col">Record</th><th scope="col">Customer text</th><th scope="col">Proposed intent</th><th scope="col">Confidence</th><th scope="col">Review</th><th scope="col">Notes</th></tr></thead>
+                        <tbody>
+                        {% for row in preview %}
+                        <tr>
+                            <td class="mono">{{ row.record_id }}</td>
+                            <td class="table-instruction"><details><summary>View record text</summary><p>{{ row.instruction }}</p></details></td>
+                            <td><span class="badge {% if row.proposed_intent == 'UNCERTAIN' %}badge--warning{% else %}badge--neutral{% endif %}">{{ row.proposed_intent }}</span></td>
+                            <td class="mono">{{ row.proposal_confidence }}</td>
+                            <td><span class="badge {% if row.requires_human_review == 'TRUE' %}badge--warning{% else %}badge--success{% endif %}">{% if row.requires_human_review == 'TRUE' %}REQUIRED{% else %}NOT REQUIRED{% endif %}</span></td>
+                            <td>{{ row.proposal_notes }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            {% endif %}
+            <footer class="page-footer">Customer Support AI Annotation &amp; QA Platform</footer>
+        </main>
+    </div>
+</div>
+</body>
+</html>

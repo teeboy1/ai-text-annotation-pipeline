@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Local data and generated files
+data/uploads/
+data/qa/*.db
+
+# Generated annotation outputs
+data/annotation/*.csv
+data/qa/*.csv
+data/qa/*.txt
+
+# Environment/secrets
+.env
+.env.*
+
+# Local logs
+*.log

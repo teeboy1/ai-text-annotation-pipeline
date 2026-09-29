@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#14243b">
+    <title>Operations Overview | Customer Support AI QA</title>
+    <script src="/static/theme.js"></script>
+    <link rel="stylesheet" href="/static/app.css">
+    <script src="/static/app.js" defer></script>
+</head>
+<body>
+<div class="app-shell">
+    <aside class="sidebar" aria-label="Main navigation">
+        <a class="brand" href="/">
+            <span class="brand-mark" aria-hidden="true">A/Q</span>
+            <span><span class="brand-name">Annotation Ops</span><span class="brand-caption">Data quality workspace</span></span>
+        </a>
+        <div class="nav-label">Workspace</div>
+        <nav>
+            <ul class="nav-list">
+                <li><a class="nav-link" href="/" aria-current="page"><span class="nav-icon" aria-hidden="true">01</span>Overview</a></li>
+                <li><a class="nav-link" href="/review"><span class="nav-icon" aria-hidden="true">02</span>Human Review</a></li>
+                <li><a class="nav-link" href="/upload"><span class="nav-icon" aria-hidden="true">03</span>Upload Data</a></li>
+            </ul>
+        </nav>
+        <div class="sidebar-spacer"></div>
+        <div class="workspace-status"><strong><span class="status-dot" aria-hidden="true"></span>Pipeline ready</strong><span>Annotation and QA workspace</span></div>
+        <div class="sidebar-footer">Customer Support AI · QA Platform</div>
+    </aside>
+
+    <div class="main-area">
+        <header class="topbar">
+            <div class="breadcrumb">Workspace <span aria-hidden="true">/</span> <strong>Overview</strong></div>
+            <div class="topbar-meta"><span class="topbar-led" aria-hidden="true"></span>System status: operational</div>
+            <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false"><span class="theme-toggle-icon" data-theme-icon aria-hidden="true">☾</span><span class="theme-toggle-label" data-theme-label>Dark mode</span></button>
+        </header>
+
+        <main class="page-content">
+            <section class="page-heading">
+                <div>
+                    <p class="eyebrow">Quality operations / 01</p>
+                    <h1>Annotation overview</h1>
+                    <p class="page-description">Monitor proposal coverage, uncertainty, and review workload.</p>
+                </div>
+                <a class="button" href="/upload"><span aria-hidden="true">+</span> Upload dataset</a>
+            </section>
+
+            <section class="kpi-grid" aria-label="Dataset metrics">
+                <article class="kpi-card" style="--tone: var(--blue)">
+                    <div class="kpi-label">Total records</div>
+                    <div class="kpi-value">{{ metrics.total }}</div>
+                    <div class="kpi-detail">Current QA sample</div>
+                </article>
+                <article class="kpi-card" style="--tone: var(--green)">
+                    <div class="kpi-label">Annotated records</div>
+                    <div class="kpi-value">{{ metrics.total - metrics.uncertain }}</div>
+                    <div class="kpi-detail">Non-uncertain proposals</div>
+                </article>
+                <article class="kpi-card" style="--tone: var(--amber)">
+                    <div class="kpi-label">Uncertain records</div>
+                    <div class="kpi-value">{{ metrics.uncertain }}</div>
+                    <div class="kpi-detail">Held for additional review</div>
+                </article>
+                <article class="kpi-card" style="--tone: var(--red)">
+                    <div class="kpi-label">Human-review workload</div>
+                    <div class="kpi-value">{{ metrics.human_review }}</div>
+                    <div class="kpi-detail">Records flagged for a person</div>
+                </article>
+            </section>
+
+            <section class="dashboard-grid" aria-label="Analytics and workload">
+                <article class="panel">
+                    <div class="panel-heading">
+                        <div><h2>Intent distribution</h2><p class="panel-subtitle">Proposal volume by intent label</p></div>
+                        <span class="quiet-label">NO BREAKDOWN</span>
+                    </div>
+                    <div class="chart-empty" role="status">
+                        <span class="chart-symbol" aria-hidden="true">▥</span>
+                        <strong>Intent-level metrics are not available here</strong>
+                        <p>The dashboard route supplies aggregate counts only. Upload results include record-level proposals.</p>
+                    </div>
+                </article>
+
+                <article class="panel">
+                    <div class="panel-heading">
+                        <div><h2>Confidence distribution</h2><p class="panel-subtitle">Proposal confidence across the dataset</p></div>
+                        <span class="quiet-label">NO BREAKDOWN</span>
+                    </div>
+                    <div class="chart-empty" role="status">
+                        <span class="chart-symbol" aria-hidden="true">⌁</span>
+                        <strong>Confidence scores are not supplied to this view</strong>
+                        <p>No score buckets are shown until the route provides the underlying values.</p>
+                    </div>
+                </article>
+            </section>
+
+            <section class="dashboard-grid" aria-label="Human review and QA summary">
+                <article class="panel" id="human-review">
+                    <div class="panel-heading">
+                        <div><h2>Human-review queue</h2><p class="panel-subtitle">Workload status for the current sample</p></div>
+                        <span class="badge badge--warning">{{ metrics.human_review }} OPEN</span>
+                    </div>
+                    <div class="workload-summary"><strong>{{ metrics.human_review }} <span>records</span></strong><span>of {{ metrics.total }} total</span></div>
+                    <div class="progress-track" role="progressbar" aria-label="Share of records requiring human review" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ (metrics.human_review / metrics.total * 100) | round(0) if metrics.total else 0 }}">
+                        <div class="progress-fill" style="--fill: {{ (metrics.human_review / metrics.total * 100) | round(0) if metrics.total else 0 }}%"></div>
+                    </div>
+                    <div class="queue-empty">
+                        <span class="queue-empty-mark" aria-hidden="true">!</span>
+                        <div><strong>Record-level queue is not exposed on this route</strong><p>Aggregate workload is available; individual records require a review endpoint.</p></div>
+                    </div>
+                </article>
+
+                <article class="panel">
+                    <div class="panel-heading">
+                        <div><h2>QA snapshot</h2><p class="panel-subtitle">Agreement and label comparison counts</p></div>
+                    </div>
+                    <div class="qa-strip">
+                        <div class="qa-item"><span class="qa-label">Matched records</span><strong class="qa-value">{{ metrics.matches }}</strong></div>
+                        <div class="qa-item"><span class="qa-label">Mismatches</span><strong class="qa-value">{{ metrics.mismatches }}</strong></div>
+                        <div class="qa-item"><span class="qa-label">Agreement</span><strong class="qa-value">{% if metrics.agreement is defined and metrics.agreement is not none %}{{ metrics.agreement }}%{% else %}N/A{% endif %}</strong></div>
+                    </div>
+                    <p class="panel-subtitle" style="margin-top: 14px">Agreement reflects non-uncertain proposals only.</p>
+                </article>
+            </section>
+            <footer class="page-footer">Customer Support AI Annotation &amp; QA Platform</footer>
+        </main>
+    </div>
+</div>
+</body>
+</html>

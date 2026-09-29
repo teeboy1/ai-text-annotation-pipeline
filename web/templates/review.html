@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#14243b">
+    <title>Human Review | Customer Support AI QA</title>
+    <script src="/static/theme.js"></script>
+    <link rel="stylesheet" href="/static/app.css">
+    <script src="/static/app.js" defer></script>
+</head>
+<body>
+<div class="app-shell">
+    <aside class="sidebar" aria-label="Main navigation">
+        <a class="brand" href="/"><span class="brand-mark" aria-hidden="true">A/Q</span><span><span class="brand-name">Annotation Ops</span><span class="brand-caption">Data quality workspace</span></span></a>
+        <div class="nav-label">Workspace</div>
+        <nav><ul class="nav-list">
+            <li><a class="nav-link" href="/"><span class="nav-icon" aria-hidden="true">01</span>Overview</a></li>
+            <li><a class="nav-link" href="/review" aria-current="page"><span class="nav-icon" aria-hidden="true">02</span>Human Review</a></li>
+            <li><a class="nav-link" href="/upload"><span class="nav-icon" aria-hidden="true">03</span>Upload Data</a></li>
+        </ul></nav>
+        <div class="sidebar-spacer"></div>
+        <div class="workspace-status"><strong><span class="status-dot" aria-hidden="true"></span>Pipeline ready</strong><span>Annotation and QA workspace</span></div>
+        <div class="sidebar-footer">Customer Support AI · QA Platform</div>
+    </aside>
+
+    <div class="main-area">
+        <header class="topbar"><div class="breadcrumb">Workspace <span aria-hidden="true">/</span> <strong>Human review</strong></div><div class="topbar-meta"><span class="topbar-led" aria-hidden="true"></span>Review workspace</div><button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false"><span class="theme-toggle-icon" data-theme-icon aria-hidden="true">☾</span><span class="theme-toggle-label" data-theme-label>Dark mode</span></button></header>
+        <main class="page-content">
+            <section class="page-heading">
+                <div><p class="eyebrow">Quality operations / 03</p><h1>Human review</h1><p class="page-description">Inspect uncertain proposals and compare source and model labels.</p></div>
+                <a class="button-secondary" href="/">Back to overview</a>
+            </section>
+
+            {% if records %}
+            <section class="review-list" aria-label="Records requiring human review">
+                {% for record in records %}
+                <article class="panel review-card">
+                    <div class="review-card-header"><span class="record-id">Record {{ record["record_id"] }}</span><span class="badge badge--warning">HUMAN REVIEW REQUIRED</span></div>
+                    <div class="record-text"><span class="record-text-label">Customer instruction</span>{{ record["instruction"] }}</div>
+                    <div class="record-facts">
+                        <div class="record-fact"><span>Source intent</span><strong>{{ record["source_intent"] }}</strong></div>
+                        <div class="record-fact"><span>AI proposed intent</span><strong>{{ record["proposed_intent"] }}</strong></div>
+                        <div class="record-fact"><span>AI confidence</span><strong class="mono">{{ record["proposal_confidence"] }}</strong></div>
+                    </div>
+                    <div class="review-notes"><strong>AI review notes</strong>{{ record["proposal_notes"] }}</div>
+                    <form class="review-form">
+                        <div>
+                            <label for="intent-{{ record['record_id'] }}">Human decision</label>
+                            <select id="intent-{{ record['record_id'] }}" aria-describedby="review-save-note-{{ record['record_id'] }}">
+                                <option value="">Select an intent...</option>
+                                <option value="cancel_order">cancel_order</option>
+                                <option value="change_order">change_order</option>
+                                <option value="change_shipping_address">change_shipping_address</option>
+                                <option value="check_cancellation_fee">check_cancellation_fee</option>
+                                <option value="check_invoice">check_invoice</option>
+                                <option value="check_payment_methods">check_payment_methods</option>
+                                <option value="check_refund_policy">check_refund_policy</option>
+                                <option value="complaint">complaint</option>
+                                <option value="contact_customer_service">contact_customer_service</option>
+                                <option value="contact_human_agent">contact_human_agent</option>
+                                <option value="create_account">create_account</option>
+                                <option value="delete_account">delete_account</option>
+                                <option value="delivery_options">delivery_options</option>
+                                <option value="delivery_period">delivery_period</option>
+                                <option value="edit_account">edit_account</option>
+                                <option value="get_invoice">get_invoice</option>
+                                <option value="get_refund">get_refund</option>
+                                <option value="newsletter_subscription">newsletter_subscription</option>
+                                <option value="payment_issue">payment_issue</option>
+                                <option value="place_order">place_order</option>
+                                <option value="recover_password">recover_password</option>
+                                <option value="registration_problems">registration_problems</option>
+                                <option value="review">review</option>
+                                <option value="set_up_shipping_address">set_up_shipping_address</option>
+                                <option value="switch_account">switch_account</option>
+                                <option value="track_order">track_order</option>
+                                <option value="track_refund">track_refund</option>
+                            </select>
+                        </div>
+                        <button class="button" type="button" disabled aria-describedby="review-save-note-{{ record['record_id'] }}">Save review</button>
+                        <p class="review-save-note" id="review-save-note-{{ record['record_id'] }}">Review decisions are not saved: this application currently has no review submission endpoint.</p>
+                    </form>
+                </article>
+                {% endfor %}
+            </section>
+            {% else %}
+            <section class="empty-state" role="status">
+                <h2>No review records to display</h2>
+                <p>No candidates are currently flagged for human review. The queue reflects records marked for review in the available annotation candidates.</p>
+                <a class="button" href="/upload">Upload dataset</a>
+            </section>
+            {% endif %}
+            <footer class="page-footer">Customer Support AI Annotation &amp; QA Platform</footer>
+        </main>
+    </div>
+</div>
+</body>
+</html>
