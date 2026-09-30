@@ -11,9 +11,14 @@ from src.annotate_candidates import propose_intent
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-UPLOAD_DIR = BASE_DIR / "data" / "uploads"
-UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+# Vercel serverless functions have a read-only application filesystem.
+# /tmp is writable during the lifetime of the function instance.
+if Path("/tmp").exists():
+    UPLOAD_DIR = Path("/tmp") / "ai-text-annotation-uploads"
+else:
+    UPLOAD_DIR = BASE_DIR / "data" / "uploads"
 
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 templates = Jinja2Templates(
     directory=str(BASE_DIR / "web" / "templates")
 )
